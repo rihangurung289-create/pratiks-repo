@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aaphat-Sathi - Help Connect</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-hands-helping"></i>
+                <span>Aaphat-Sathi</span>
+            </div>
+            <nav class="nav">
+                <div id="auth-section" class="auth-section">
+                    <button id="login-btn" class="btn btn-outline">Login</button>
+                    <button id="register-btn" class="btn btn-primary">Register</button>
+                </div>
+                <div id="user-section" class="user-section" style="display: none;">
+                    <span id="user-name"></span>
+                    <button id="logout-btn" class="btn btn-outline">Logout</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="filter-section">
+                <h3>Filter by Type</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-type="all">All</button>
+                    <button class="filter-btn" data-type="need">🔴 Need Help</button>
+                    <button class="filter-btn" data-type="offer">🟢 Offer Help</button>
+                </div>
+                
+                <h4>Categories</h4>
+                <div class="category-filters">
+                    <label><input type="checkbox" value="Water" checked> Water</label>
+                    <label><input type="checkbox" value="Food" checked> Food</label>
+                    <label><input type="checkbox" value="Shelter" checked> Shelter</label>
+                    <label><input type="checkbox" value="Medical" checked> Medical</label>
+                    <label><input type="checkbox" value="Transport" checked> Transport</label>
+                </div>
+            </div>
+            
+            <div class="action-section">
+                <button id="add-need-btn" class="btn btn-need">
+                    <i class="fas fa-plus"></i> Add Need Help
+                </button>
+                <button id="add-offer-btn" class="btn btn-offer">
+                    <i class="fas fa-heart"></i> Offer Help
+                </button>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div id="map" class="map-container"></div>
+
+        <!-- Pin Details Panel -->
+        <div id="pin-details" class="pin-details" style="display: none;">
+            <div class="pin-details-content">
+                <button id="close-details" class="close-btn">&times;</button>
+                <h3 id="pin-title"></h3>
+                <div id="pin-content"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Register</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Name</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-role">I am a:</label>
+                    <select id="register-role">
+                        <option value="user">User/Person in need</option>
+                        <option value="volunteer">Volunteer</option>
+                    </select>
+                </div>
+                <div class="form-group volunteer-field" style="display: none;">
+                    <label for="volunteer-radius">Volunteer Radius (km)</label>
+                    <input type="number" id="volunteer-radius" min="1" max="50" value="5">
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Need/ Offer Modal -->
+    <div id="add-pin-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="add-pin-title">Add Pin</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="add-pin-form">
+                <div class="form-group">
+                    <label for="pin-category">Category</label>
+                    <select id="pin-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Water">Water</option>
+                        <option value="Food">Food</option>
+                        <option value="Shelter">Shelter</option>
+                        <option value="Medical">Medical</option>
+                        <option value="Transport">Transport</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pin-details-input">Details</label>
+                    <textarea id="pin-details-input" placeholder="Describe what you need or can offer..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pin-quantity">Quantity/Details</label>
+                    <input type="text" id="pin-quantity" placeholder="e.g., 50 liters, 2 doctors, 3 tents">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="location-input">
+                        <button type="button" id="use-current-location" class="btn btn-outline">
+                            <i class="fas fa-location-arrow"></i> Use Current Location
+                        </button>
+                        <span id="location-status" class="location-status"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Pin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
